@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE-edge">
+    <meta name = "viewport" content = "width=device-width,
+    initial-scale=1.0">
+    <title>
+        Document
+    </title>
+</head>
+<body>
+
+    <textarea id="chat-log" cols="100" rows="20"></textarea><br>
+    <input type="text" id="chat-message-input" size="100"><br>
+    <input type="button" value="send" id="chat-message-submit">
+    
+   <script>
+    var ws = new WebSocket("ws://127.0.0.1:8000/ws/sc/")
+    ws.onopen = function(event){
+        console.log("This is Client, Websocket is connecting ... ",event)
+    }
+    ws.onmessage = function(event){
+        // console.log("Message received from server ... ",event)
+        // console.log("Type of message receiv ed from server ...",typeof(event))
+
+        const data = JSON.parse(event.data)  // string to object
+        document.querySelector('#chat-log').value += (data.msg + '\n')
+
+    }
+    ws.onerror = function(event){
+        console.log("Client per error aaya  ... ",event)
+    }
+
+    document.getElementById("chat-message-submit").onclick = function(event)
+    {
+        const messageInputDom = document.getElementById('chat-message-input')
+        const message = messageInputDom.value
+        ws.send(JSON.stringify({   //object -> string conversion
+            'msg' : message 
+        }))
+        messageInputDom.value = ''
+    }
+
+    ws.onclose = function(event){
+        console.log("Closing from client ",event)
+    }
+   </script>
+</body>
+
+</html>
